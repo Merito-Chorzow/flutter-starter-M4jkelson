@@ -1,121 +1,289 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const GeoJournalApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class GeoJournalApp extends StatelessWidget {
+  const GeoJournalApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Geo Journal',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+        colorSchemeSeed: Colors.teal,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      // domyślnie lista wpisów
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const EntriesListScreen(),
+        '/detail': (context) => const EntryDetailScreen(),
+        '/add': (context) => const AddEntryScreen(),
+        '/settings': (context) => const SettingsScreen(),
+      },
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+/// EKRAN 1 – LISTA / MAPA WPISÓW
+class EntriesListScreen extends StatelessWidget {
+  const EntriesListScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    // tu później podłączysz API (lista wpisów) i/lub mapę
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: const Text('Geo Journal'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.pushNamed(context, '/settings');
+            },
+          ),
+        ],
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+      body: ListView(
+        children: [
+          const SizedBox(height: 16),
+          const Center(
+            child: Text(
+              'Lista wpisów (placeholder)',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Center(
+            child: Text(
+              'Tutaj będzie lista z API lub mapa z pinami.',
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const Divider(height: 32),
+          // kilka przykładowych itemów do kliknięcia
+          ListTile(
+            leading: const Icon(Icons.place),
+            title: const Text('Przykładowy wpis #1'),
+            subtitle: const Text('Kliknij, żeby zobaczyć szczegóły'),
+            onTap: () {
+              // docelowo przekażesz ID wpisu
+              Navigator.pushNamed(context, '/detail', arguments: '1');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.place),
+            title: const Text('Przykładowy wpis #2'),
+            subtitle: const Text('Kliknij, żeby zobaczyć szczegóły'),
+            onTap: () {
+              Navigator.pushNamed(context, '/detail', arguments: '2');
+            },
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushNamed(context, '/add');
+        },
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+/// EKRAN 2 – SZCZEGÓŁY WPISU
+class EntryDetailScreen extends StatelessWidget {
+  const EntryDetailScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // docelowo dostaniesz tutaj ID przez arguments
+    final args = ModalRoute.of(context)?.settings.arguments;
+    final entryId = args?.toString() ?? 'brak-id';
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Szczegóły wpisu'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: .center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('You have pushed the button this many times:'),
             Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+              'Wpis ID: $entryId',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Tutaj pokażesz tytuł, opis, datę i lokalizację wpisu pobraną z API.',
+            ),
+            const SizedBox(height: 24),
+            const Row(
+              children: [
+                Icon(Icons.location_on),
+                SizedBox(width: 8),
+                Text('Lokalizacja: (lat, lng) – placeholder'),
+              ],
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+    );
+  }
+}
+
+/// EKRAN 3 – DODAJ WPIS
+class AddEntryScreen extends StatefulWidget {
+  const AddEntryScreen({super.key});
+
+  @override
+  State<AddEntryScreen> createState() => _AddEntryScreenState();
+}
+
+class _AddEntryScreenState extends State<AddEntryScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _titleCtrl = TextEditingController();
+  final _descCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _titleCtrl.dispose();
+    _descCtrl.dispose();
+    super.dispose();
+  }
+
+  void _saveEntry() {
+    if (!_formKey.currentState!.validate()) return;
+
+    // TODO: tu później wyślesz POST do API + pobierzesz lokalizację
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Zapisano (na razie tylko lokalnie)')),
+    );
+
+    Navigator.pop(context); // cofka do listy
+  }
+
+  void _getLocation() {
+    // TODO: tu później wywołasz natywną funkcję (geolocator)
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Pobieranie lokalizacji (placeholder)')),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Dodaj wpis'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Expanded(
+              child: Form(
+                key: _formKey,
+                child: ListView(
+                  children: [
+                    TextFormField(
+                      controller: _titleCtrl,
+                      decoration: const InputDecoration(
+                        labelText: 'Tytuł',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Podaj tytuł';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _descCtrl,
+                      decoration: const InputDecoration(
+                        labelText: 'Opis',
+                        border: OutlineInputBorder(),
+                      ),
+                      maxLines: 4,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Podaj opis';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        const Expanded(
+                          child: Text('Lokalizacja: (jeszcze nie ustawiona)'),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton.icon(
+                          onPressed: _getLocation,
+                          icon: const Icon(Icons.my_location),
+                          label: const Text('Pobierz lokalizację'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _saveEntry,
+                child: const Text('Zapisz wpis'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// EKRAN 4 – USTAWIENIA
+class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  bool _darkMode = false; // na razie lokalny przełącznik – placeholder
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Ustawienia'),
+      ),
+      body: ListView(
+        children: [
+          SwitchListTile(
+            title: const Text('Tryb ciemny'),
+            subtitle: const Text('Na razie tylko przykład przełącznika'),
+            value: _darkMode,
+            onChanged: (value) {
+              setState(() {
+                _darkMode = value;
+              });
+              // TODO: podłącz prawdziwe przełączanie motywu w GeoJournalApp
+            },
+          ),
+          const ListTile(
+            title: Text('Info o aplikacji'),
+            subtitle: Text('Geo Journal – projekt zaliczeniowy Flutter'),
+          ),
+        ],
       ),
     );
   }
